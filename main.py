@@ -15,11 +15,11 @@ app = App()
 
 f = Elastic_File(app, 'website_efs')
 
-#net = Network(app, "website_network", f)
-net = Network(app, "website_network")
+net = Network(app, "website_network", f)
+
 #el = Load_Balancer(app, 'website_elb', net)
 r = Roles(app, 'website_roles')
-c = Cluster(app, 'website_cluster', net, r)
+c = Cluster(app, 'website_cluster', net, r, f)
 #print(dir(c.cluster.certificate_authority))
 #print(vars(c.cluster.certificate_authority))
 

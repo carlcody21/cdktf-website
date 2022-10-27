@@ -1,18 +1,28 @@
 from constructs import Construct
 from network.network import Network
+from file_system.file import Elastic_File
 from  helper.project_helper import Helper
-from cdktf import TerraformOutput, TerraformLocal
+from cdktf import TerraformOutput, TerraformLocal, Fn, TerraformIterator, Token
 #from imports.eks import Eks, EksOptions
-from imports.aws import eks
+from imports.aws import eks, efs, vpc
 from iam.role import Roles
 import json
 
 class Cluster(Helper):
-    def __init__(self, scope: Construct, ns: str, network: Network, role: Roles):
+    def __init__(self, scope: Construct, ns: str, network: Network, role: Roles, efile_share: Elastic_File):
         super().__init__(scope, ns)
 
-       #self.network = network
-
+        # https://developer.hashicorp.com/terraform/cdktf/concepts/iterators
+        l = TerraformIterator.from_list(Token().as_list(network.my_vpc.private_subnets_output))
+        efile_mount = efs.EfsMountTarget(
+            self,
+            'efs_' + self.APP_NAME + '_mount_az',
+            for_each=l,
+            file_system_id = efile_share.efile.id,
+            subnet_id = Token.as_string(l.value),
+            security_groups = [str(network.efs_sg.id)],
+            )
+        
         # Info for VPC config from
         #  https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eks_cluster#vpc_config
         vpc_config = eks.EksClusterVpcConfig(

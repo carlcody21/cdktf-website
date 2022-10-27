@@ -1,15 +1,15 @@
+import json
 from typing import Sequence
 from constructs import Construct
 import requests
 from helper.project_helper import Helper
 from imports.vpc import Vpc
 from imports.aws import vpc, efs
-from cdktf import TerraformOutput, Token
-#from file_system.file import Elastic_File
+from cdktf import TerraformOutput, Token, Fn, TerraformIterator, ITerraformDependable
+from file_system.file import Elastic_File
 
 class Network(Helper):
-    def __init__(self, scope: Construct, ns: str):
-    #def __init__(self, scope: Construct, ns: str, efile: Elastic_File):
+    def __init__(self, scope: Construct, ns: str, efile_share: Elastic_File):
         super().__init__(scope, ns)
 
         # info on module 
@@ -36,7 +36,8 @@ class Network(Helper):
             },
             private_subnet_tags={
                 'kubernetes.io/cluster/' + self.APP_NAME + '_cluster': "shared",
-                'kubernetes.io/role/internal-elb': '1'
+                'kubernetes.io/role/internal-elb': '1',
+                'type': 'private'
             },
             #depends_on=self.eks_sg,
         )
@@ -133,43 +134,23 @@ class Network(Helper):
 #################### EFS Mount Points ####################
         self.private_sb_ids = Token().as_list(self.my_vpc.private_subnets_output)
         
-        #count = 1
-        #self.mount_point = []
-        #for sub in self.private_sb_ids: #network.my_vpc.private_subnets:
-            
-        #    efile_mount = efs.EfsMountTarget(
-        #        self,
-        #        'efs_' + self.APP_NAME + '_mount_az_' + str(count),
-        #        file_system_id = efile.id,
-        #        subnet_id = sub,
-        #        security_groups = [str(self.efs_sg.id)],
-        #    )
-        #    count+=1
-        #    self.mount_point.append(efile_mount)
+        # https://developer.hashicorp.com/terraform/cdktf/concepts/iterators
+        #l = TerraformIterator.from_list(Token().as_list(self.my_vpc.private_subnets_output))
+        #efile_mount = efs.EfsMountTarget(
+        #    self,
+        #    'efs_' + self.APP_NAME + '_mount_az',
+        #    for_each=l,
+        #    file_system_id = efile_share.efile.id,
+        #    subnet_id = Token.as_string(l.value),
+        #    security_groups = [str(self.efs_sg.id)],
+        #    depends_on=ITerraformDependable()
+        #   )
         
-        #TerraformOutput(
-        #    self,
-        #    'subnet_ids',
-        #    value=self.private_sb_ids,
-        #)
-
-        #TerraformOutput(
-        #    self,
-        #   'subnet_ids_type',
-        #    value= type(self.my_vpc.private_subnets),
-        #)
-
         TerraformOutput(
             self,
             'subnet_ids_output',
-            value= self.my_vpc.private_subnets_output,
+            value= Fn.tolist(self.private_sb_ids)
         )
-
-        #TerraformOutput(
-        #    self,
-        #    'subnet_ids_output_type',
-        #    value= type(self.my_vpc.private_subnets_output)
-        #)
 
 def get_my_ip():
     call = requests.get('https://api.ipify.org?format=json')

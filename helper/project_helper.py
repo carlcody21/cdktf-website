@@ -9,7 +9,8 @@ class Helper(TerraformStack):
         # set constants for project
         self.AWS_PROFILE= 'cwCMD'
         self.APP_NAME = 'website'
-        self.EC2_INSTANCE_SIZE = 't2.micro'
+        #self.EC2_INSTANCE_SIZE = 't2.micro'
+        self.EC2_INSTANCE_SIZE = 't3.medium'
         self.REGION = 'us-east-2'
         self.KEY_PAIR = ''
 

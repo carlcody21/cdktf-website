@@ -1,6 +1,7 @@
 from constructs import Construct
 from helper.project_helper import Helper
 from imports.aws import iam
+from pathlib import Path
 
 class Roles(Helper):
     def __init__(self, scope: Construct, ns: str):
@@ -81,7 +82,18 @@ class Roles(Helper):
             roles=[str(self.eks_node_role.name)],
         )
         
-
+############ Provision Policy, Role, and Service Account for EKS access to EFS ############
+        #with open('./iam/eks_efs_policy.json', 'r') as f:
+        eks_efs_policy_data = Path('./iam/eks_efs_policy.json').read_text()
+            
+        eks_efs_policy = iam.IamPolicy(
+            self,
+            'efs_eks_policy',
+            name='EFSCSIControllerIAMPolicy',
+            policy=eks_efs_policy_data,
+            description='eks_efs_policy',
+        )
+        
         #self.eks_role = iam.IamRole(
          #   self,
          #   self.APP_NAME + '_eks_role',
