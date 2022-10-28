@@ -28,14 +28,14 @@ class Network(Helper):
             enable_dns_support= True,
             tags={
                 "name": self.APP_NAME + "_vpc",
-                'kubernetes.io/cluster/' + self.APP_NAME + '_cluster': "shared"
+                'kubernetes.io/cluster/' + self.APP_NAME + '-cluster': "shared"
                 },
             public_subnet_tags={
-                'kubernetes.io/cluster/' + self.APP_NAME + '_cluster': "shared",
+                'kubernetes.io/cluster/' + self.APP_NAME + '-cluster': "shared",
                 'kubernetes.io/role/elb': '1'
             },
             private_subnet_tags={
-                'kubernetes.io/cluster/' + self.APP_NAME + '_cluster': "shared",
+                'kubernetes.io/cluster/' + self.APP_NAME + '-cluster': "shared",
                 'kubernetes.io/role/internal-elb': '1',
                 'type': 'private'
             },
