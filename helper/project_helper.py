@@ -13,7 +13,8 @@ class Helper(TerraformStack):
         self.EC2_INSTANCE_SIZE = 't3.medium'
         self.REGION = 'us-east-2'
         self.KEY_PAIR = ''
-
+        self.DOMAIN_NAME='codywicker.com'
+        
         # VPC CONFIG
         self.VPC_SUBNET = "10.0.0.0/22"
         self.AZ1_PUBLIC_SB = "10.0.0.0/25"

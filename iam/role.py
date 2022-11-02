@@ -82,7 +82,7 @@ class Roles(Helper):
             roles=[str(self.eks_node_role.name)],
         )
         
-############ Provision Policy, Role, and Service Account for EKS access to EFS ############
+############ Provision Policy EKS access to EFS ############
         #with open('./iam/eks_efs_policy.json', 'r') as f:
         eks_efs_policy_data = Path('./iam/eks_efs_policy.json').read_text()
             
@@ -93,7 +93,18 @@ class Roles(Helper):
             policy=eks_efs_policy_data,
             description='eks_efs_policy',
         )
-        
+
+############ Provision Policy EKS access to ELB ############
+        eks_elb_policy_data = Path('./iam/eks_elb_policy.json').read_text()
+            
+        eks_elb_policy = iam.IamPolicy(
+            self,
+            'efs_elb_policy',
+            name='ALBIngressControllerIAMPolicy',
+            policy=eks_elb_policy_data,
+            description='efs_elb_policy',
+        )
+
         #self.eks_role = iam.IamRole(
          #   self,
          #   self.APP_NAME + '_eks_role',

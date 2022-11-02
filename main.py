@@ -8,11 +8,14 @@ from cluster.cluster import Cluster
 #from cluster.option2 import Cluster
 from iam.role import Roles
 from kube.kube import K8WordPress
-
+from cert.cert import HTTPS_Cert
+from dns.dns import Domain
 
 
 app = App()
 
+domain = Domain(app, 'domain')
+cert = HTTPS_Cert(app, 'https_cert', domain)
 f = Elastic_File(app, 'website_efs')
 
 net = Network(app, "website_network", f)
