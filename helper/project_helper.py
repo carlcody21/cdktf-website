@@ -7,14 +7,14 @@ class Helper(TerraformStack):
         super().__init__(scope, ns)
 
         # set constants for project
-        self.AWS_PROFILE= 'cwCMD'
-        self.APP_NAME = 'website'
-        #self.EC2_INSTANCE_SIZE = 't2.micro'
-        #self.EC2_INSTANCE_SIZE = 't3.medium'
-        self.EC2_INSTANCE_SIZE = 't3.small'
-        self.REGION = 'us-east-2'
+        self.AWS_PROFILE= 'ENTER PROFILE NAME'
+        self.APP_NAME = 'ENTER APP NAME'
+
+        # https://aws.amazon.com/ec2/pricing/on-demand/
+        self.EC2_INSTANCE_SIZE = 'ENTER INSTANCE SIZE'
+        self.REGION = 'ENTER AWS REGION'
         self.KEY_PAIR = ''
-        self.DOMAIN_NAME='codywicker.com'
+        self.DOMAIN_NAME='ENTER AWS HOSTED ZONE NAME'
         self.STATE_BACKEND = 'cdktf-state'
         
         # VPC CONFIG
@@ -23,7 +23,7 @@ class Helper(TerraformStack):
         self.AZ1_PRIVATE_SB = "10.0.0.128/25"
         self.AZ2_PUBLIC_SB = "10.0.1.0/25"
         self.AZ2_PRIVATE_SB = "10.0.1.128/25"
-        self.AZ = ['us-east-2a', 'us-east-2b']
+        self.AZ = ['ENTER AWS AVAILABILITY ZONE A', 'ENTER AWS AVAILABILITY ZONE B']
         # Database Config 
         self.DB_MASTER_PORT = 3306
         self.DB_ENGINE_VERSION = '5.7'
