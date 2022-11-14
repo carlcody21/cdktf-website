@@ -1,8 +1,7 @@
-import json
 from constructs import Construct
 from helper.project_helper import Helper
 from imports.aws import acm, route53
-from cdktf import TerraformOutput, TerraformLocal, Fn, Token
+from cdktf import TerraformOutput, S3Backend
 from dns.dns import Domain
 
 class HTTPS_Cert(Helper):
@@ -18,18 +17,7 @@ class HTTPS_Cert(Helper):
         )
         
         https_cert_validation_standard = self.https_cert.domain_validation_options.get(0)
-        https_cert_validation_wildcard = self.https_cert.domain_validation_options.get(1)
-        
-        #self.validation_count = Fn.length_of(self.https_cert_validation)
-        #self.https_cert_validation = Fn.element(self.https_cert.domain_validation_options, 1)
-        #Fn.element(Token().as_list(self.https_cert.domain_validation_options))
-        
-        #domain_id = route53.DataAwsRoute53Zone(
-        #    self,
-        #    'data_domain',
-        #    private_zone=False,
-        #    name=self.DOMAIN_NAME,
-        #)
+        #https_cert_validation_wildcard = self.https_cert.domain_validation_options.get(1)
         
         dns_validation_record_standard = route53.Route53Record(
             self,
@@ -41,29 +29,16 @@ class HTTPS_Cert(Helper):
             records=[https_cert_validation_standard.resource_record_value],
         )
         
-        #dns_validation_record_wildcard = route53.Route53Record(
-        #    self,
-        #    'cert_validation_record_wildcard', #+ cert_validation.count,
-        #    type=https_cert_validation_wildcard.resource_record_type,
-        #    name=https_cert_validation_wildcard.resource_record_name,
-        #    zone_id=domain.dns_sub_zone.zone_id,
-        #    ttl=60,
-        #    records=[https_cert_validation_wildcard.resource_record_value]
-        #)
-        
-        
-        #maybe use https://github.com/hashicorp/terraform-cdk/issues/430
-        #cert_validation = []
-        #for c in range(Fn.length_of(Token.as_number(self.https_cert_validation))):
-        #    obj=Fn.element(self.https_cert.domain_validation_options, c)
-        #    cert_validation.append(obj.resource_record_name)
-        
-        #TerraformOutput(
-        #    self,
-        #    'test1',
-        #    value=cert_validation
-        #)
-            
+        S3Backend(
+            self,
+            profile=self.AWS_PROFILE,
+            bucket=self.STATE_BACKEND,
+            key='https_cert',
+            region=self.REGION,
+            encrypt=True,
+            kms_key_id='alias/' + self.STATE_BACKEND,
+            dynamodb_table=self.STATE_BACKEND,
+        )
         
         TerraformOutput(
             self,

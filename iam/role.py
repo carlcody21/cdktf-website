@@ -2,6 +2,7 @@ from constructs import Construct
 from helper.project_helper import Helper
 from imports.aws import iam
 from pathlib import Path
+from cdktf import TerraformOutput, S3Backend
 
 class Roles(Helper):
     def __init__(self, scope: Construct, ns: str):
@@ -111,3 +112,14 @@ class Roles(Helper):
          #   name=self.APP_NAME + '_eks_role',
          #   managed_policy_arns=
         #)
+        
+        S3Backend(
+            self,
+            profile=self.AWS_PROFILE,
+            bucket=self.STATE_BACKEND,
+            key='website_roles',
+            region=self.REGION,
+            encrypt=True,
+            kms_key_id='alias/' + self.STATE_BACKEND,
+            dynamodb_table=self.STATE_BACKEND,
+        )

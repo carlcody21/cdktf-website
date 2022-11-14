@@ -5,7 +5,7 @@ import requests
 from helper.project_helper import Helper
 from imports.vpc import Vpc
 from imports.aws import vpc, efs
-from cdktf import TerraformOutput, Token, Fn, TerraformIterator, ITerraformDependable
+from cdktf import TerraformOutput, S3Backend, Token, Fn, TerraformIterator, ITerraformDependable
 from file_system.file import Elastic_File
 
 class Network(Helper):
@@ -145,6 +145,17 @@ class Network(Helper):
         #    security_groups = [str(self.efs_sg.id)],
         #    depends_on=ITerraformDependable()
         #   )
+        
+        S3Backend(
+            self,
+            profile=self.AWS_PROFILE,
+            bucket=self.STATE_BACKEND,
+            key='website_network',
+            region=self.REGION,
+            encrypt=True,
+            kms_key_id='alias/' + self.STATE_BACKEND,
+            dynamodb_table=self.STATE_BACKEND,
+        )
         
         TerraformOutput(
             self,
