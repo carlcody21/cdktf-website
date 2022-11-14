@@ -1,27 +1,38 @@
 #!/usr/bin/env python
 from constructs import Construct
-from cdktf import App, TerraformStack
+from cdktf import App, TerraformStack, S3Backend
 from network.network import Network
 from file_system.file import Elastic_File
 from load_balancer.load_balancer import Load_Balancer
 from cluster.cluster import Cluster
-#from cluster.option2 import Cluster
 from iam.role import Roles
 from kube.kube import K8WordPress
-
-
+from cert.cert import HTTPS_Cert
+from dns.dns import Domain
+from backend.backend import Terrafrom_Backend
 
 app = App()
 
-f = Elastic_File(app, 'website_efs')
+# https://technology.doximity.com/articles/terraform-s3-backend-best-practices
+#Defines Terraform Backend Infra
+s3_backend = Terrafrom_Backend(app, 's3_backend')
 
-#net = Network(app, "website_network", f)
-net = Network(app, "website_network")
-#el = Load_Balancer(app, 'website_elb', net)
-r = Roles(app, 'website_roles')
-c = Cluster(app, 'website_cluster', net, r)
-#print(dir(c.cluster.certificate_authority))
-#print(vars(c.cluster.certificate_authority))
+#Defines route53 config for codywicker.com
+domain = Domain(app, 'domain')
 
-#kube = K8WordPress(app, 'kube', c)
+#Defines ACM certficate used to terminate HTTPS traffic at load balancer
+cert = HTTPS_Cert(app, 'https_cert', domain)
+
+#Defines EFS store, Kube pods are able to write to the same file system
+file = Elastic_File(app, 'website_efs')
+
+#Defines VPC config
+net = Network(app, "website_network", file)
+
+#Defines AWS roles Used by cluster
+roles = Roles(app, 'website_roles')
+
+#defines EKS cluster
+cluster = Cluster(app, 'website_cluster', net, roles, file)
+
 app.synth()

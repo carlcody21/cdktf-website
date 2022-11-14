@@ -1,6 +1,8 @@
 from constructs import Construct
 from helper.project_helper import Helper
 from imports.aws import iam
+from pathlib import Path
+from cdktf import TerraformOutput, S3Backend
 
 class Roles(Helper):
     def __init__(self, scope: Construct, ns: str):
@@ -81,6 +83,28 @@ class Roles(Helper):
             roles=[str(self.eks_node_role.name)],
         )
         
+############ Provision Policy EKS access to EFS ############
+        #with open('./iam/eks_efs_policy.json', 'r') as f:
+        eks_efs_policy_data = Path('./iam/eks_efs_policy.json').read_text()
+            
+        eks_efs_policy = iam.IamPolicy(
+            self,
+            'efs_eks_policy',
+            name='EFSCSIControllerIAMPolicy',
+            policy=eks_efs_policy_data,
+            description='eks_efs_policy',
+        )
+
+############ Provision Policy EKS access to ELB ############
+        eks_elb_policy_data = Path('./iam/eks_elb_policy.json').read_text()
+            
+        eks_elb_policy = iam.IamPolicy(
+            self,
+            'efs_elb_policy',
+            name='ALBIngressControllerIAMPolicy',
+            policy=eks_elb_policy_data,
+            description='efs_elb_policy',
+        )
 
         #self.eks_role = iam.IamRole(
          #   self,
@@ -88,3 +112,14 @@ class Roles(Helper):
          #   name=self.APP_NAME + '_eks_role',
          #   managed_policy_arns=
         #)
+        
+        S3Backend(
+            self,
+            profile=self.AWS_PROFILE,
+            bucket=self.STATE_BACKEND,
+            key='website_roles',
+            region=self.REGION,
+            encrypt=True,
+            kms_key_id='alias/' + self.STATE_BACKEND,
+            dynamodb_table=self.STATE_BACKEND,
+        )

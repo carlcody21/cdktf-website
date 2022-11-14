@@ -1,5 +1,5 @@
 from constructs import Construct
-from cdktf import TerraformStack
+from cdktf import TerraformStack, S3Backend
 from imports.aws import AwsProvider, vpc
 
 class Helper(TerraformStack):
@@ -9,10 +9,14 @@ class Helper(TerraformStack):
         # set constants for project
         self.AWS_PROFILE= 'cwCMD'
         self.APP_NAME = 'website'
-        self.EC2_INSTANCE_SIZE = 't2.micro'
+        #self.EC2_INSTANCE_SIZE = 't2.micro'
+        #self.EC2_INSTANCE_SIZE = 't3.medium'
+        self.EC2_INSTANCE_SIZE = 't3.small'
         self.REGION = 'us-east-2'
         self.KEY_PAIR = ''
-
+        self.DOMAIN_NAME='codywicker.com'
+        self.STATE_BACKEND = 'cdktf-state'
+        
         # VPC CONFIG
         self.VPC_SUBNET = "10.0.0.0/22"
         self.AZ1_PUBLIC_SB = "10.0.0.0/25"
@@ -33,7 +37,4 @@ class Helper(TerraformStack):
             region=self.REGION, 
             profile=self.AWS_PROFILE
         )
-
-        
-
-        
+          
